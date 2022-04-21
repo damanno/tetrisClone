@@ -25,6 +25,9 @@ class Game {
         this.initialPieceY = 1;
         this.x = 0;
         this.y = 0;
+        this.explodedX = 0;
+        this.explodedY = 0;
+        
     }
 
     drawScreen(ctx) {
@@ -60,26 +63,27 @@ class Game {
         this.drawPiece(piece, ctx, x, y);
     }
 
+    clickRotate() {
+        var piece = new Piece();
+        this.currentPiece = piece.turnPiece(this.currentPiece);
+    }
+
     drawPieceFix(piece, ctx, x, y) {
 
         for (var i = 0; i < 4; i++) {
             for (var f = 0; f < 4; f++) {
-
-                var sendX = i + x;
-                var sendY = f + y;
-
+                var sendX = x;
+                var sendY = y;
                 if (piece[i][f] > 0 && (sendX > 0)) {
-
                     sendX = i + x < 1 ? 1 : (i + x > this.squaresX ? this.squaresX : i + x);
                     sendY = f + y < 1 ? 1 : (f + y > this.squaresY ? this.squaresY : f + y);
-
                     this.drawDot(ctx, sendX, sendY, this.color);
                 }
             }
         }
     }
 
-    drawPiece(piece, ctx, x, y) {
+    drawPiece(piece, ctx) {
 
         var explodeX = 0;
         var explodeY = 0;
@@ -102,37 +106,37 @@ class Game {
             maxY += pieceYTmp[i];
         }
 
-        explodeX = x + maxX;
+        explodeX = this.x + maxX;
         if (explodeX > this.squaresX) {
-            console.log("explodiu y " + x);
-            x = x - maxX;
+            this.x = this.x - maxX;
         }
 
-        explodeY = y + maxY;
+        explodeY = this.y + maxY;
         if (explodeY > this.squaresY) {
-            console.log("explodiu y " + y);
-            y = y - maxY;
+            this.explodeY++;
         }
-        this.drawPieceFix(piece, ctx, x, y);
+        if (this.explodedX < 3 || this.explodedY < 3) {
+            this.drawPieceFix(piece, ctx, this.x, this.y);
+        } else {
+            this.pieceInGame = false;
+        }
     }
 
     drawDot(ctx, x, y, color) {
-        //send coordinate and 
-        
         ctx.fillStyle = color;
         ctx.fillRect((x * this.squareSize), y * this.squareSize, this.squareSize - this.margin, this.squareSize - this.margin);
     }
 
     addPieceGravity(ctx) {
-        this.y = this.y + 1;        
-        console.log( this.x + " " + this.y );
+        console.log(this.x + " " + this.y);
+        this.y = this.y + 1;
         this.drawPiece(this.currentPiece, ctx, this.x, this.y);
     }
 
     generateGamePiece(ctx) {
         var piece = new Piece();
 
-        if (this.y > initialY ) {
+        if (this.y > initialY) {
             this.pieceInGame = false;
         }
 
@@ -145,17 +149,24 @@ class Game {
             }
             this.x = Math.floor(Math.random() * this.squaresX) + 1;
             this.pieceInGame = true;
-            this.y = 1;
+            this.y = -4;
+            this.explodedX = 0;
+            this.explodedY = 0;
         }
-        
-        this.addPieceGravity(ctx);
-        
-    }
+        if (this.pieceInGame) {
+            this.addPieceGravity(ctx);
+        }
 
+    }
 
     draw(ctx) {
         this.drawScreen(ctx);
         this.generateGamePiece(ctx);
+    }
+
+
+    check(e) {
+        alert(e.keyCode);
     }
 
 }

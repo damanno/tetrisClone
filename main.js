@@ -26,8 +26,13 @@ function gameLoop(timestamp) {
         game.draw(ctx);
     }
 
+    window.addEventListener("keyup",() =>{
+        game.clickRotate();
+     });
+
     requestAnimationFrame(gameLoop);
 } 
 //ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGTH);
+
 
 gameLoop();
